@@ -1,10 +1,10 @@
 {
     "name": "saoxa37/dbrequest",
-    "description": "Mark Andr create :V",
+    "description": "PDO Request",
     "type": "library",
-    "homepage" : "https://github.com/vietdau33/DBRequest",
+    "homepage" : "https://github.com/vietdau33/PDO",
     "license": "MIT",
-    "version" : "0.0.2",
+    "version" : "0.0.1",
     "authors": [
         {
             "name": "Minh Viet",
@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "DBRequest\\": "DB/"
+            "PdoConnect\\": "/"
         }
     }
 }
