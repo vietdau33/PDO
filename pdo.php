@@ -10,7 +10,7 @@ class PdoConnect{
     private $username = null;
     private $password = null;
     private $database = null;
-    private $conn = null;
+    public $conn = null;
     private $table = null;
     private $port = null;
 
@@ -27,8 +27,7 @@ class PdoConnect{
         $this->connect();
     }
     private function getConfig(){
-        $data           = Spyc::YAMLLoad(__DIR__ . '\config.yaml');
-        $data           = $data['mysql'];
+        $data           = require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '__conf' . DIRECTORY_SEPARATOR . 'db.php';
 
         $this->host     = $data['host'];
         $this->username = $data['username'];
@@ -48,13 +47,18 @@ class PdoConnect{
     private function _buildWhere(array $arrs){
         $w = '';
         foreach ($arrs as $key => $val){
-            $w .= ' AND ' . $key . ' = "' . $val . '"';
+            $w .= ' AND ';
+            if(gettype($val) == 'array'){
+                $w .= $this->_buildWherOtherType($val);
+            }else{
+                $w .= $key . ' = "' . $val . '"';
+            }
         }
         $w = trim($w,' AND ');
         return $w;
     }
-    private function _buildWherIn(array $arrs){
-        //
+    private function _buildWherOtherType(array $arrs){
+        return $arrs[0] . ' ' . $arrs[1] . ' ' . $arrs[2];
     }
     private function _buildOrder(array $arrs){
         $order = ' order by ';
@@ -110,6 +114,29 @@ class PdoConnect{
         $result = $this->get($where, 1);
         return $result[0];
     }
+    public function searchWithCodition($column, $codition, $value, $order = null){
+        $sql = 'SELECT * from ' . $this->table . ' where ' . $column . ' ';
+        switch (strtoupper($codition)){
+            case 'LIKE' :
+                $sql .= $codition . ' "%' . $value . '%"';
+                break;
+            case 'IN' :
+                $sql .= $codition . ' ' . $value;
+                break;
+            default :
+                $sql .= $codition . ' "' . $value . '"';
+                break;
+        }
+        if($order != null){
+            $sql .= $this->_buildOrder($order);
+        }
+        $result = $this->_exec($sql);
+        if(!$result){
+            $this->log->write('function searchWithCodition error');
+            return false;
+        }
+        return $result;
+    }
     public function update(array $updates, array $where){
         $codition = '';
         foreach($updates as $key=>$value) {
@@ -155,5 +182,13 @@ class PdoConnect{
         }
         return $result;
     }
+    public function query($sql){
+        $result = null;
+        try {
+            $result = $this->conn->query($sql);
+        }catch (PDOException $e){
+            $this->log->write('Query sql error');
+        }
+        return $result;
+    }
 }
-
