@@ -27,7 +27,7 @@ class PdoConnect{
         $this->connect();
     }
     private function getConfig(){
-        $data           = require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '__conf' . DIRECTORY_SEPARATOR . 'db.php';
+        $data           = require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 
         $this->host     = $data['host'];
         $this->username = $data['username'];
