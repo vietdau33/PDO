@@ -3,6 +3,6 @@ return [
   'host' => 'localhost',
   'username' => 'root',
   'password' => '',
-  'database' => 'shoesshop',
+  'database' => 'test',
   'port' => '3306',
 ];
