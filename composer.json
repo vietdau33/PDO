@@ -8,11 +8,12 @@
     "authors": [
         {
             "name": "Minh Viet",
-            "email": "vietdm@vnext.com.vn"
+            "email": "saoxa37@gmail.com"
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=7.0",
+        "ext-pdo": "*"
     },
     "autoload": {
         "psr-4": {

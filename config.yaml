@@ -1,6 +1,0 @@
-mysql :
-  host : localhost
-  username : root
-  password : ''
-  database : 'shoesshop'
-  port : '1088'

@@ -1,6 +1,5 @@
 <?php
 
-require_once __DIR__ . '\yaml.php';
 require_once __DIR__ . '\log.php';
 
 class PdoConnect{
@@ -16,6 +15,7 @@ class PdoConnect{
 
     public function setDatabase($database){
         $this->database = $database;
+        $this->connect();
     }
     public function setTable($table){
         $this->table = $table;
@@ -86,9 +86,9 @@ class PdoConnect{
             return false;
         }
     }
-    public function all($order = null){
+    public function all(array $order = []){
         $sql = 'SELECT * from ' . $this->table;
-        if($order != null){
+        if(!empty($order)){
             $sql .= $this->_buildOrder($order);
         }
         $result = $this->_exec($sql);
@@ -98,8 +98,11 @@ class PdoConnect{
         }
         return $result;
     }
-    public function get(array $where, $limit = null, $location = null){
+    public function get(array $where, $limit = null, array $order = []){
         $sql = 'SELECT * from ' . $this->table . ' where ' . $this->_buildWhere($where);
+        if(!empty($order)){
+            $sql .= $this->_buildOrder($order);
+        }
         if($limit != null){
             $sql .= ' limit ' . $limit;
         }
@@ -114,7 +117,7 @@ class PdoConnect{
         $result = $this->get($where, 1);
         return $result[0];
     }
-    public function searchWithCodition($column, $codition, $value, $order = null){
+    public function searchWithCodition($column, $codition, $value, array $order = []){
         $sql = 'SELECT * from ' . $this->table . ' where ' . $column . ' ';
         switch (strtoupper($codition)){
             case 'LIKE' :
@@ -127,7 +130,7 @@ class PdoConnect{
                 $sql .= $codition . ' "' . $value . '"';
                 break;
         }
-        if($order != null){
+        if(!empty($order)){
             $sql .= $this->_buildOrder($order);
         }
         $result = $this->_exec($sql);
@@ -188,6 +191,8 @@ class PdoConnect{
             $result = $this->conn->query($sql);
         }catch (PDOException $e){
             $this->log->write('Query sql error');
+            $this->log->write('Message in query: ' . $e->getMessage());
+            $this->log->write('Sql in query: ' . $sql);
         }
         return $result;
     }
