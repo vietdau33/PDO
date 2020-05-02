@@ -27,7 +27,7 @@ class PdoConnect{
         $this->connect();
     }
     private function getConfig(){
-        $data           = require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
+        $data           = include __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 
         $this->host     = $data['host'];
         $this->username = $data['username'];
@@ -115,9 +115,9 @@ class PdoConnect{
     }
     public function one(array $where){
         $result = $this->get($where, 1);
-        return $result[0];
+        return $result[0] ?? null;
     }
-    public function searchWithCodition($column, $codition, $value, array $order = []){
+    public function getWithCodition($column, $codition, $value, array $order = []){
         $sql = 'SELECT * from ' . $this->table . ' where ' . $column . ' ';
         switch (strtoupper($codition)){
             case 'LIKE' :
@@ -135,7 +135,7 @@ class PdoConnect{
         }
         $result = $this->_exec($sql);
         if(!$result){
-            $this->log->write('function searchWithCodition error');
+            $this->log->write('function getWithCodition error');
             return false;
         }
         return $result;

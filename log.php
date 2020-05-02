@@ -3,6 +3,7 @@
 class Logger{
 
     private $nameFile = '';
+    private $folder = __DIR__ . DIRECTORY_SEPARATOR . "log" . DIRECTORY_SEPARATOR;
 
     public function __construct(){
         date_default_timezone_set('Asia/Ho_Chi_Minh');
@@ -11,7 +12,10 @@ class Logger{
 
     public function write($string){
         $preString = date("H:m:s") . ' ';
-        $file = fopen(__DIR__ . "\\log\\" . $this->nameFile, "a+");
+        if (!file_exists($this->folder)) {
+            mkdir($this->folder, 0777, true);
+        }
+        $file = fopen($this->folder . $this->nameFile, "a+");
         fwrite($file, PHP_EOL);
         fwrite($file, $preString . $string);
         fclose($file);
