@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '\log.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'log.php';
 
 class PdoConnect{
 
@@ -12,6 +12,7 @@ class PdoConnect{
     public $conn = null;
     private $table = null;
     private $port = null;
+    private $dataGet = ['*'];
 
     public function setDatabase($database){
         $this->database = $database;
@@ -86,8 +87,13 @@ class PdoConnect{
             return false;
         }
     }
+    public function setGet(array $aryGet){
+        $this->dataGet = $aryGet;
+        return $this;
+    }
     public function all(array $order = []){
-        $sql = 'SELECT * from ' . $this->table;
+        $sql = 'SELECT ' . implode(', ', $this->dataGet) . ' from ' . $this->table;
+        $this->dataGet = ['*'];
         if(!empty($order)){
             $sql .= $this->_buildOrder($order);
         }
@@ -99,7 +105,8 @@ class PdoConnect{
         return $result;
     }
     public function get(array $where, $limit = null, array $order = []){
-        $sql = 'SELECT * from ' . $this->table . ' where ' . $this->_buildWhere($where);
+        $sql = 'SELECT ' . implode(', ', $this->dataGet) . ' from ' . $this->table . ' where ' . $this->_buildWhere($where);
+        $this->dataGet = ['*'];
         if(!empty($order)){
             $sql .= $this->_buildOrder($order);
         }
@@ -118,7 +125,8 @@ class PdoConnect{
         return $result[0] ?? null;
     }
     public function getWithCodition($column, $codition, $value, array $order = []){
-        $sql = 'SELECT * from ' . $this->table . ' where ' . $column . ' ';
+        $sql = 'SELECT ' . implode(', ', $this->dataGet) . ' from ' . $this->table . ' where ' . $column . ' ';
+        $this->dataGet = ['*'];
         switch (strtoupper($codition)){
             case 'LIKE' :
                 $sql .= $codition . ' "%' . $value . '%"';
@@ -136,7 +144,7 @@ class PdoConnect{
         $result = $this->_exec($sql);
         if(!$result){
             $this->log->write('function getWithCodition error');
-            return false;
+            return [];
         }
         return $result;
     }
@@ -162,7 +170,7 @@ class PdoConnect{
         return $result;
     }
     public function delete(array $arrs){
-        $sql = 'DELETE FROM ' . $this->table . ' where ' . array_keys($arrs)[0] . ' = "' . $arrs[array_keys($arrs)[0]] . '"';
+        $sql = 'DELETE FROM ' . $this->table . ' where ' . array_keys($arrs)[0] . ' = "' . array_values($arrs)[0] . '"';
         $result = $this->_exec($sql);
         if(!$result){
             $this->log->write('function update error ' . $sql);
@@ -188,8 +196,9 @@ class PdoConnect{
     public function query($sql){
         $result = null;
         try {
-            $result = $this->conn->query($sql);
+            $result = $this->_exec($sql);
         }catch (PDOException $e){
+            $result = [];
             $this->log->write('Query sql error');
             $this->log->write('Message in query: ' . $e->getMessage());
             $this->log->write('Sql in query: ' . $sql);
